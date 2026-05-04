@@ -1,0 +1,1 @@
+/usr/bin/clang++ -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/C++_LOB.dir/main.cpp.o -o C++_LOB

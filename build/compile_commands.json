@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/acat_exploits/C++_Limit_Order_Book/C-_Limit_Order_Book_Simulator/build",
+  "command": "/usr/bin/clang++   -g -std=gnu++20 -o CMakeFiles/C++_LOB.dir/main.cpp.o -c /Users/acat_exploits/C++_Limit_Order_Book/C-_Limit_Order_Book_Simulator/main.cpp",
+  "file": "/Users/acat_exploits/C++_Limit_Order_Book/C-_Limit_Order_Book_Simulator/main.cpp",
+  "output": "CMakeFiles/C++_LOB.dir/main.cpp.o"
+}
+]
