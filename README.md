@@ -6,7 +6,18 @@ Engineered a low-latency C++ limit order book simulator that parses millions of 
 
 It has been engineered to process and match 5 million simulated market orders in ~1.2 seconds on consumer hardware (2019 MacBook air).
 
-# Architecture
+# 💻🧠 Architecture
+
+Achieved microsecond-level latency by bypassing out-of-the-box standard data structures such as std::priority_queue.
+
+The LOB state is managed by a fusion of a few data structures that allow for O(1) critical-path operations.
+
+1) Price Priority: (std::map) Orders are grouped into PriceLevel buckets. The underlying red-black tree ensures that the highest-priority bids and asks are immediately accessible.
+   
+2) Time Priority: (doubly Linked-List) PriceLevel structs manage a doubly linked-list of Order structs. This allows for a FIFO execution of Orders and allows for an O(1) insertion of Orders.
+
+3) Instant Cancellation: (std::unordered_map) A hash map links an Order's ID with a pointer to its physical memory address. This allows the engine to directly jump to an order, unlink it from the linked-list and free its memory back into the memory pool in O(1) time eithout traversing through the list.
+
 
 
 
