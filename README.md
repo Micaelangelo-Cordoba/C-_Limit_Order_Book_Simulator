@@ -4,12 +4,12 @@
 
 Engineered a low-latency limit order book simulator (LOB) written in modern C++.
 
-This simulator process millions of simulated orders, organizing bids and asks in price-time priority. Through the utilization of custom memory management and efficient data structures, the engine achieves deterministic performance and processes over 3.3 million orders per second on consumer hardware. 
+This simulator process millions of simulated orders, organizing bids and asks in price-time priority. Through the utilization of custom memory management and efficient data structures, the engine achieves deterministic performance and processes over **3.3 million orders per second** on consumer hardware. 
 
 # Performance Metrics 🚀
-Throughput: ~3.3 million orders per second.
-Average latency: 300 nanoseconds per order
-Hardware Profile: Tested on a 2019 Intel-based MacBook Air.
+**Throughput:** ~3.3 million orders per second.
+**Average latency:** 300 nanoseconds per order
+**Hardware Profile:** Tested on a 2019 Intel-based MacBook Air.
 
 
 # 💻🧠 Architecture
