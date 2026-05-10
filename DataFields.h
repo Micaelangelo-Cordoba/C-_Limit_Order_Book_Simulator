@@ -1,3 +1,4 @@
+#pragma once
 #include <cstdint>
 #include <unordered_map>
 #include <map>
@@ -21,12 +22,13 @@ PriceLevel* parent_level = nullptr;
 };
 
 struct PriceLevel {  //All orders are grouped by price .
+    Order* head {nullptr};
+    Order* tail {nullptr};
     //this manages the case where there are multiple order with the same price, 
     //but different timestamps!
     uint64_t price;
     uint32_t total_volume = 0;
-    Order* head {nullptr};
-    Order* tail {nullptr};
+  
     bool is_bid;
 };
 
@@ -45,7 +47,7 @@ class OrderPool { //this will create a preallocated memory pool, preventing
 
 };
 
-OrderPool::OrderPool(size_t capacity) {
+inline OrderPool::OrderPool(size_t capacity) {
     arena.resize(capacity); //forces the OS to allocate capacity amount of memory for orders
     for (size_t i {}; i < capacity -1; ++i) {
         arena[i].next = &arena[i+1]; //Orders are linked together
@@ -53,7 +55,7 @@ OrderPool::OrderPool(size_t capacity) {
     free_head = &arena[0];
 }
 
-Order* OrderPool::allocate() { 
+inline Order* OrderPool::allocate() { 
     if (!free_head) return nullptr;
     Order* node = free_head;
     free_head = free_head->next; //pop the front of the allocated block 
@@ -65,7 +67,7 @@ Order* OrderPool::allocate() {
     return node; //hand it to the matching engine!
 }
 
-void OrderPool::free(Order* node) { //in case of cancelled order or matched orders
+inline void OrderPool::free(Order* node) { //in case of cancelled order or matched orders
     node->next = free_head; //o(1) stack push, push it back to our allocated
     //memory block, the head become our retired node. 
     free_head = node;
@@ -93,7 +95,7 @@ private:
     public:
 //memory pool will be initialized with 1 million empty Order structs. We will use this pool
 //over time instead of constantly using the 'new' keyword 
-    LimitOrderBook() : memory_pool {1'000'000} {}
+    LimitOrderBook() : memory_pool {5'000'000} {}
 
     void add_buy_limit_order(uint64_t id, uint64_t price, uint32_t size, uint64_t ts);
 
@@ -102,8 +104,13 @@ private:
 
     void cancel_order(uint64_t id); //cancel orders in o(1) based on id.
 
+    void execute_market_buy(uint32_t size);
+    
+    void execute_market_sell(uint32_t size);
+
 };
-    void LimitOrderBook::add_buy_limit_order(uint64_t id, uint64_t price, uint32_t size, uint64_t ts) {
+    
+inline void LimitOrderBook::add_buy_limit_order(uint64_t id, uint64_t price, uint32_t size, uint64_t ts) {
         Order* buy_order = memory_pool.allocate(); //grab from our pre allocated mem block
 
         buy_order->id = id;
@@ -120,7 +127,7 @@ private:
 
         if (!plevel.head) {
             plevel.head = buy_order;
-            plevel.tail = buy_order;
+            plevel.tail = buy_order; //having a head and tail reduces traversal incase of insertion
         } else {
             plevel.tail->next = buy_order;  //if new orders have the same price, 
             //the never orders will be in the tail of the linked list that represents
@@ -134,7 +141,7 @@ private:
         //than traversing through the containers.
     }
 
-    void LimitOrderBook::add_sell_limit_order(uint64_t id, uint64_t price, uint32_t size, uint64_t ts) {
+inline void LimitOrderBook::add_sell_limit_order(uint64_t id, uint64_t price, uint32_t size, uint64_t ts) {
         Order* ask_order = memory_pool.allocate(); //instead of using 'new'
         ask_order->id = id; 
         ask_order->price = price;
@@ -160,7 +167,8 @@ private:
         }
         order_map[id] = ask_order;
     }
-    void LimitOrderBook::cancel_order(uint64_t id) {
+    
+inline void LimitOrderBook::cancel_order(uint64_t id) {
        auto cancel = order_map.find(id); //look for the order in the hash map
        //will return an iterator
 
@@ -196,4 +204,82 @@ private:
 
         memory_pool.free(canceled); //give the data from the retired order back to our memory block!
         order_map.erase(cancel); //remove it from hash map 
+    }
+
+
+inline void LimitOrderBook::execute_market_sell(uint32_t size) {
+        auto trades = bids.begin(); 
+        
+        while (trades != bids.end() && size > 0) { 
+
+            PriceLevel& priority_bids = trades->second;
+            Order* curr_bid = priority_bids.head;
+            
+            while (curr_bid != nullptr && size > 0) {
+                if (curr_bid->size <= size) {
+                    size -= curr_bid->size;
+                    priority_bids.total_volume -= curr_bid->size;
+
+                    Order* matched_bid = curr_bid;
+                    curr_bid = curr_bid->next;
+
+                    order_map.erase(matched_bid->id); //remove from tracker
+                    memory_pool.free(matched_bid); //give memory of the order back to the memory pool
+
+                } else {
+                    curr_bid->size -= size; //bid stays alive
+                    priority_bids.total_volume -=size;
+                    size = 0; //stops the loop 
+                }
+            }
+
+            if (priority_bids.total_volume == 0) { //the whole level has been cleared
+                trades = bids.erase(trades);
+            }
+            else { //prevent dangling pointers
+                if (curr_bid != nullptr) {
+                    curr_bid->prev = nullptr;
+                }
+                priority_bids.head = curr_bid; //make sure the head is updated.
+            }
+        }
+    }
+    
+inline void LimitOrderBook::execute_market_buy(uint32_t size) {
+        auto trades = asks.begin(); //points to the priority asks of std::map
+
+        while (trades != asks.end() && size > 0) { //loop continues until there is either no more ask orders (unlikely) or the user fully satisfied all of their orders
+            
+            PriceLevel& priority_asks = trades->second;
+            Order* curr_ask = priority_asks.head;
+
+            while (curr_ask != nullptr && size > 0) {
+            if (curr_ask->size <= size) {
+                size -= curr_ask->size;
+                priority_asks.total_volume -= curr_ask->size;
+
+                Order* matched_ask = curr_ask;
+                curr_ask = curr_ask->next;
+                order_map.erase(matched_ask->id);
+                memory_pool.free(matched_ask);
+
+            } else {
+                curr_ask->size -= size;
+                priority_asks.total_volume -= size;
+                size = 0; 
+            }
+
+        }
+
+            if (priority_asks.total_volume == 0) {
+                trades = asks.erase(trades);
+            }
+            else {
+                if (curr_ask != nullptr) {
+                    curr_ask->prev = nullptr;
+                }
+                priority_asks.head = curr_ask;
+            }
+        }
+
     }
