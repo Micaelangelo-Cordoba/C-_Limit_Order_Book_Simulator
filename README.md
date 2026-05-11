@@ -54,13 +54,17 @@ During live trading, Order structs are popped from the free list memory stack in
    
     git clone https://github.com/Micaelangelo-Cordoba/Cpp_Limit_Order_Book_Simulator.git
 
-3) **Move to Main Directory**
+2) **Move to Main Directory**
    
     cd Cpp_Limit_Order_Book_Simulator
 
-5) **run executable**
+3) **compile program in C++20 and -O3 flag**
    
-    ./matching_engine
+    g++ -std=c++20 -O3 main.cpp -o matching_engine
+
+4) **run executable**
+
+   ./matching_engine
 
 
 
