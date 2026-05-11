@@ -15,7 +15,14 @@ Through the utilization of custom memory management and efficient data structure
 
 **Hardware Profile:** Tested on a 2019 Intel-based MacBook Air.
 
+# Benchmark Notes 
 
+- Compiled with -O3
+  
+- Order_Distribution: 40% add_bids / 40% add_asks / 15% cancel_orders / 5% market_matches
+  
+- normal price distribution
+  
 # 💻🧠 Architecture
 
 Achieved microsecond-level latency by bypassing out-of-the-box standard data structures such as std::priority_queue.
