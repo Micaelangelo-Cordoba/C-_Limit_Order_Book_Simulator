@@ -40,12 +40,15 @@ During live trading, Order structs are popped from the free list memory stack in
 # How To Run (Linux/MacOS)
 
 1) **Clone The Repository**
+   
     git clone https://github.com/Micaelangelo-Cordoba/Cpp_Limit_Order_Book_Simulator.git
 
-2) **Move to Main Directory**
+3) **Move to Main Directory**
+   
     cd Cpp_Limit_Order_Book_Simulator
 
-3) **run executable**
+5) **run executable**
+   
     ./matching_engine
 
 
