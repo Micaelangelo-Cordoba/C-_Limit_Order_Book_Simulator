@@ -35,7 +35,7 @@ This engine implements a custom contiguous memory arena (free list) using a prea
 
 At startup, millions of Order Structs are allocated side-by-side in RAM. The order structs are padded and aligned (alignas(32)) to fit perfectly within 64-byte cache lines. 
 
-During live trading, Order structs are popped from the free list memory stack in O(1) constant time, eliminating the need for requesting the Operating System for heap memory.
+During live trading, Order structs are popped from the free list memory stack in O(1) constant time, minimizing the need for requesting the Operating System for heap memory.
 
 
 
