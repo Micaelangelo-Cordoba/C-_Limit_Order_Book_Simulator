@@ -9,9 +9,9 @@ This simulator processes millions of simulated orders, organizing bids and asks 
 Through the utilization of custom memory management and efficient data structures, the engine achieves deterministic performance and processes over **3.3 million orders per second** on consumer hardware. 
 
 # Performance Metrics 🚀
-**Throughput:** ~4.3 million orders per second.
+**Throughput (Single-Threaded):** ~4.3 million orders per second.
 
-**Average latency:** ~230 nanoseconds per order
+**Average latency (Order Processing):** ~230 nanoseconds per order
 
 **Hardware Profile:** Tested on a 2019 Intel-based MacBook Air.
 
