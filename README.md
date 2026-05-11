@@ -22,14 +22,14 @@ The LOB state is managed by a fusion of a few data structures that allow for O(1
    
 2) Time Priority: (doubly Linked-List) PriceLevel structs manage a doubly linked-list of Order structs. This allows for a FIFO execution of Orders and allows for an O(1) insertion of Orders.
 
-3) Instant Cancellation: (std::unordered_map) A hash map links an Order's ID with a pointer to its physical memory address. This allows the engine to directly jump to an order, unlink it from the linked-list and free its memory back into the memory pool in O(1) time eithout traversing through the list.
+3) Instant Cancellation: (std::unordered_map) A hash map links an Order's ID with a pointer to its physical memory address. This allows the engine to directly jump to an order, unlink it from the linked-list and free its memory back into the memory pool in O(1) time without traversing through the list.
 
 
 
 
 # Zero-Allocation Memory Pool
 
-Dynamic memory allocation ('new'/'delete') introduces latency spikes due to kernal system calls and heap fragmentation
+Dynamic memory allocation ('new'/'delete') introduces latency spikes due to kernel system calls and heap fragmentation
 
 This engine implements a custom contiguous memory arena (free list) using a preallocated std::vector.
 
