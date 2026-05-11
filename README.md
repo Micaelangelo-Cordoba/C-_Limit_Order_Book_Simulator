@@ -27,7 +27,7 @@ The LOB state is managed by a fusion of a few data structures that allow for O(1
 
 
 
-# Zero-Allocation Memory Pool
+# Custom Free-List Memory Pool
 
 Dynamic memory allocation ('new'/'delete') introduces latency spikes due to kernel system calls and heap fragmentation
 
