@@ -2,8 +2,9 @@
 #include <random>
 #include <vector>
 #include "profiler.h"
-#include "DataFields.h"
-#include "performance_test.h"
+#include "Types.h"
+#include "LimitOrderBook.h"
+#include "TradingEngine.h"
 
 std::vector<NetworkPacket> generate_mock_traffic(size_t num_packets) { 
     using enum Type;
